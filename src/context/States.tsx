@@ -6,30 +6,44 @@ interface PropsStateContext {
     despesas: Array<Object>;
     setDespesas: Function;
     DeletaDespesas: Function;
+    editar: boolean;
+    setEditar: Function;
+    item: string;
+    setItem: Function;
+    value: string;
+    setValue: Function;
+    CriarDespesas: Function;
+    modalVisible: boolean;
+    setModalVisible: Function;
+    loadingDespesas: boolean;
+    setLoadingDespesas: Function;
+    EditarDespesas: Function;
+    idItem: string;
+    setIdItem: Function;
+    modalDetalhes: boolean;
+    setModalDetalhes: Function;
+    buscaDespesa: any;
+    setBuscaDespesa: Function;
+    BuscaDespesa: Function;
 }
 
 const StateContext = createContext<PropsStateContext>({} as PropsStateContext);
 
 const StateContextProvider: React.FC = ({ children }) => {
-    const [ despesas, setDespesas ] = useState([])
+    const [despesas, setDespesas] = useState([]);
+    const [buscaDespesa, setBuscaDespesa] = useState({});
+    const [editar, setEditar] = useState(false);
+    const [item, setItem] = useState("");
+    const [value, setValue] = useState("");
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalDetalhes, setModalDetalhes] = useState(false);
+    const [loadingDespesas, setLoadingDespesas] = useState(false);
+    const [idItem, setIdItem] = useState("");
 
     function ListaDespesas() {
         api.get(`/expenses?page=1&perPage=10`)
             .then((response) => {
-                setDespesas(response.data)
-                console.log(response.data);
-            })
-            .catch(function (error) {
-                if (error.response) {
-                    console.log(error.response);
-                }
-            });
-    }
-    function DeletaDespesas(id: string) {
-        api.delete(`/expenses/${id}`)
-            .then((response) => {
-                ListaDespesas();
-                console.log(response.data);
+                setDespesas(response.data);
             })
             .catch(function (error) {
                 if (error.response) {
@@ -38,12 +52,114 @@ const StateContextProvider: React.FC = ({ children }) => {
             });
     }
 
-    return <StateContext.Provider value={{
-        ListaDespesas,
-        despesas, 
-        setDespesas,
-        DeletaDespesas
-    }}>{children}</StateContext.Provider>;
+    function DeletaDespesas(id: string) {
+        setLoadingDespesas(true);
+        api.delete(`/expenses/${id}`)
+            .then((response) => {
+                ListaDespesas();
+                setModalDetalhes(false);
+                setLoadingDespesas(false);
+            })
+            .catch(function (error) {
+                if (error.response) {
+                    setLoadingDespesas(false);
+                    console.log(error.response);
+                }
+            });
+    }
+
+    function CriarDespesas() {
+        setLoadingDespesas(true);
+        api.post(`/expenses`, {
+            date: "2021-11-18",
+            item: item,
+            value: value,
+            additionalInfo: {},
+        })
+            .then((response) => {
+                ListaDespesas();
+                setLoadingDespesas(false);
+                setModalVisible(!modalVisible);
+                setItem("");
+                setValue("");
+            })
+            .catch(function (error) {
+                if (error.response) {
+                    setLoadingDespesas(false);
+                    console.log(error.response);
+                }
+            });
+    }
+
+    function EditarDespesas(id: string) {
+        setLoadingDespesas(true);
+        api.put(`/expenses/${id}`, {
+            date: "2021-11-18",
+            item: item,
+            value: value,
+            additionalInfo: {},
+        })
+            .then((response) => {
+                ListaDespesas();
+                setLoadingDespesas(false);
+                setModalVisible(!modalVisible);
+                setItem("");
+                setValue("");
+            })
+            .catch(function (error) {
+                if (error.response) {
+                    setLoadingDespesas(false);
+                    console.log(error.response);
+                }
+            });
+    }
+
+    function BuscaDespesa(id: string) {
+        setLoadingDespesas(true);
+        api.get(`/expenses/${id}`)
+            .then((response) => {
+                setBuscaDespesa(response.data);
+                setLoadingDespesas(false);
+            })
+            .catch(function (error) {
+                if (error.response) {
+                    setLoadingDespesas(false);
+                    console.log(error.response);
+                }
+            });
+    }
+
+    return (
+        <StateContext.Provider
+            value={{
+                ListaDespesas,
+                despesas,
+                setDespesas,
+                DeletaDespesas,
+                editar,
+                setEditar,
+                item,
+                setItem,
+                value,
+                setValue,
+                CriarDespesas,
+                modalVisible,
+                setModalVisible,
+                loadingDespesas,
+                setLoadingDespesas,
+                EditarDespesas,
+                idItem,
+                setIdItem,
+                modalDetalhes,
+                setModalDetalhes,
+                buscaDespesa,
+                setBuscaDespesa,
+                BuscaDespesa,
+            }}
+        >
+            {children}
+        </StateContext.Provider>
+    );
 };
 
 export { StateContextProvider };

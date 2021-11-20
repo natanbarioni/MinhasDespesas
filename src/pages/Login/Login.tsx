@@ -32,7 +32,7 @@ export default function Login({ navigation }: any) {
         setErrorEmail("");
 
         if (!re.test(String(email).toLowerCase())) {
-            setErrorEmail("Preencha o campo e-mail corretamente.");
+            alert("Preencha o campo corretamente.")
             error = true;
         }
         return !error;
@@ -42,8 +42,8 @@ export default function Login({ navigation }: any) {
         setLoading(true);
         Start(email).then((resposta: boolean) => {
             if (resposta) {
-                setLoading(false);
                 navigation.navigate("Home");
+                setLoading(false);
             }
         });
     }
@@ -73,7 +73,6 @@ export default function Login({ navigation }: any) {
                     autoCapitalize={"none"}
                     placeholderTextColor={'#838282c8'}
                 />
-                <ErrorMessage>{errorEmail}</ErrorMessage>
                 <BtnAcessar
                     onPress={() => {
                         if (validar()) {

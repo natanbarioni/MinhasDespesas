@@ -12,6 +12,7 @@ type PropsUserContext = {
     user: UserType;
     setUser: Function;
     Start: Function;
+    logout: Function;
 };
 
 const DEFAULT_VALUE: UserType = {
@@ -38,15 +39,19 @@ const UserContextProvider: React.FC = ({ children }) => {
                 token: response.data.token,
             };
             setUser(valor);
-            console.log(user.token)
             api.defaults.headers.common = {
                 Authorization: `Bearer ${response.data.token}`,
             };
             return true;
         } catch (error: any) {
-            Alert.alert(error.response.data.error_description);
+            alert(error);
             return false;
         }
+    };
+
+    const logout = () => {
+        setUser(DEFAULT_VALUE);
+        //AsyncStorage.removeItem("ManterLogin")
     };
 
     return (
@@ -54,7 +59,8 @@ const UserContextProvider: React.FC = ({ children }) => {
             value={{
                 user: user,
                 setUser,
-                Start
+                Start,
+                logout
             }}
         >
             {children}
