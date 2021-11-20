@@ -63,7 +63,7 @@ export default function Home({ navigation }: any) {
         buscaDespesa,
     } = useContext(StateContext);
 
-    const { logout } = useContext(UserContext)
+    const { logout } = useContext(UserContext);
 
     useEffect(() => {
         ListaDespesas();
@@ -239,7 +239,11 @@ export default function Home({ navigation }: any) {
                                             </ContainerIndividual>
                                         </ContainerLeft>
                                     </Row>
-                                    <Row style={{justifyContent: 'space-around'}}>
+                                    <Row
+                                        style={{
+                                            justifyContent: "space-around",
+                                        }}
+                                    >
                                         <BtnDespesa
                                             onPress={() => {
                                                 setModalDetalhes(

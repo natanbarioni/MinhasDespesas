@@ -40,6 +40,12 @@ const StateContextProvider: React.FC = ({ children }) => {
     const [loadingDespesas, setLoadingDespesas] = useState(false);
     const [idItem, setIdItem] = useState("");
 
+    var data = new Date();
+    var dia = String(data.getDate()).padStart(2, '0');
+    var mes = String(data.getMonth() + 1).padStart(2, '0');
+    var ano = data.getFullYear();
+    var dataAtual = ano + '-' + mes + '-' + dia
+
     function ListaDespesas() {
         api.get(`/expenses?page=1&perPage=10`)
             .then((response) => {
@@ -71,7 +77,7 @@ const StateContextProvider: React.FC = ({ children }) => {
     function CriarDespesas() {
         setLoadingDespesas(true);
         api.post(`/expenses`, {
-            date: "2021-11-18",
+            date: dataAtual,
             item: item,
             value: value,
             additionalInfo: {},
@@ -82,6 +88,7 @@ const StateContextProvider: React.FC = ({ children }) => {
                 setModalVisible(!modalVisible);
                 setItem("");
                 setValue("");
+                console.log(dataAtual)
             })
             .catch(function (error) {
                 if (error.response) {
@@ -94,7 +101,7 @@ const StateContextProvider: React.FC = ({ children }) => {
     function EditarDespesas(id: string) {
         setLoadingDespesas(true);
         api.put(`/expenses/${id}`, {
-            date: "2021-11-18",
+            date: dataAtual,
             item: item,
             value: value,
             additionalInfo: {},
