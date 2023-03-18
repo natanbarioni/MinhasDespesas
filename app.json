@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "DesafioMobile",
-    "slug": "DesafioMobile",
+    "name": "Minhas Despesas",
+    "slug": "MinhasDespesas",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#18122B"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -22,11 +22,17 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      }
+        "backgroundColor": "#18122B"
+      },
+      "package": "com.MinhasDespesas"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2244374a-9ad2-44d6-a593-fab987c99534"
+      }
     }
   }
 }

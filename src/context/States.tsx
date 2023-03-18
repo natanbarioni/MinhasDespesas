@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import api from "../services/api";
+import Toast from "react-native-toast-message";
+import uuid from "react-native-uuid";
 
 interface PropsStateContext {
     ListaDespesas: Function;
@@ -75,28 +77,11 @@ const StateContextProvider: React.FC = ({ children }) => {
     }
 
     function CriarDespesas() {
-        setLoadingDespesas(true);
-        api.post(`/expenses`, {
-            date: dataAtual,
-            item: item,
-            value: value,
-            additionalInfo: {},
-        })
-            .then((response) => {
-                ListaDespesas();
-                setLoadingDespesas(false);
-                setModalVisible(!modalVisible);
-                setItem("");
-                setValue("");
-                console.log(dataAtual)
-            })
-            .catch(function (error) {
-                if (error.response) {
-                    setLoadingDespesas(false);
-                    console.log(error.response);
-                }
-            });
+
+        
     }
+
+
 
     function EditarDespesas(id: string) {
         setLoadingDespesas(true);

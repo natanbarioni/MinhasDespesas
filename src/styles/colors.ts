@@ -1,7 +1,7 @@
-export const PRIMARY = '#b9d92a';
-export const SECONDARY = '#202222';
-export const GREY = '#393939';
+export const PRIMARY = '#635985';
+export const SECONDARY = '#18122B';
+export const GREY = '#635985';
 export const WHITE = '#fff';
-export const GREY_LIGHT = '#838282c8';
-export const EDITAR = '#9bc6f5';
+export const GREY_LIGHT = '#635985';
+export const EDITAR = '#18122B';
 export const DELETAR = '#f4a5a2';

@@ -44,7 +44,7 @@ export const BtnAdicionar = styled.TouchableOpacity`
     height: 50px;
     padding: 5px;
     margin-top: 10px;
-    border-radius: 5px;
+    border-radius: 8px;
     background-color: ${Colors.PRIMARY};
     justify-content: center;
     align-items: center;
@@ -56,29 +56,30 @@ export const TxtAdicionar = styled.Text`
     font-size: 20px;
 `;
 
-export const ContainerItem = styled.Pressable`
+export const ContainerItem = styled.View`
     width: 100%;
     height: auto;
-    background-color: ${Colors.WHITE};
-    border-radius: 5px;
+    background-color: ${Colors.PRIMARY};
+    border-radius: 8px;
     padding: 20px;
     margin-bottom: 10px;
 `;
 
 export const Despesa = styled.Text`
-    font-size: 32px;
-    color: black;
+    font-size: 20px;
+    font-weight: bold;
+    color: ${Colors.WHITE};
 `;
 
 export const Data = styled.Text`
-    font-size: 18px;
-    color: black;
+    font-size: 16px;
+    color: ${Colors.WHITE};
 `;
 
 export const Valor = styled.Text`
-    font-size: 18px;
+    font-size: 19px;
     font-weight: bold;
-    color: black;
+    color: ${Colors.WHITE};
     text-transform: uppercase;
 `;
 
@@ -111,7 +112,7 @@ export const ModalView = styled.View`
     flex: 0.5;
     background-color: ${Colors.WHITE};
     align-items: center;
-    border-radius: 20px;
+    border-radius: 8px;
     padding: 20px;
     position: absolute;
     top: 55;
@@ -122,7 +123,7 @@ export const BtnDespesa = styled.TouchableOpacity`
     height: 35px;
     background-color: ${Colors.PRIMARY};
     justify-content: center;
-    border-radius: 5px;
+    border-radius: 8px;
     margin-top: 40px;
 `;
 
@@ -144,9 +145,9 @@ export const TxtCancelar = styled.Text`
 
 export const Input = styled.TextInput`
     width: 95%;
-    height: 45px;
-    padding: 10px;
-    border-radius: 15px;
+    //height: 45px;
+    padding: 12px;
+    border-radius: 8px;
     background-color: ${Colors.GREY};
     color: ${Colors.WHITE};
 `;
@@ -181,4 +182,19 @@ export const BtnSair = styled.TouchableOpacity`
     border-radius: 8px;
     justify-content: center;
     align-items: center;
+`;
+
+export const ClearListButton = styled.TouchableOpacity`
+    width: 100%;
+    height: 50px;
+    border-radius: 8px;
+    background-color: ${Colors.DELETAR};
+    align-items: center;
+    justify-content: center;
+`;
+
+export const ClearListButtonText = styled.Text`
+    color: ${Colors.SECONDARY};
+    font-size: 15px;
+    font-weight: bold;
 `;

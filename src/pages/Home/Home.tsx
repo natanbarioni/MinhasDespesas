@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
     BtnAdicionar,
     Container,
@@ -25,9 +25,13 @@ import {
     Label,
     ContainerLoading,
     BtnSair,
+    ClearListButton,
+    ClearListButtonText,
+    LengthExpenses,
 } from "./Home.styled";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 import { Colors } from "../../styles";
 import moment from "moment";
 import StateContext from "../../context/States";
@@ -36,8 +40,11 @@ import {
     TouchableOpacity,
     Modal,
     ActivityIndicator,
+    Alert,
 } from "react-native";
 import UserContext from "../../context/User";
+import Toast from "react-native-toast-message";
+import uuid from "react-native-uuid";
 
 export default function Home({ navigation }: any) {
     const {
@@ -45,13 +52,8 @@ export default function Home({ navigation }: any) {
         despesas,
         DeletaDespesas,
         item,
-        setItem,
-        value,
-        setValue,
+        //setItem,
         CriarDespesas,
-        modalVisible,
-        setModalVisible,
-        loadingDespesas,
         setEditar,
         editar,
         EditarDespesas,
@@ -63,11 +65,21 @@ export default function Home({ navigation }: any) {
         buscaDespesa,
     } = useContext(StateContext);
 
-    const { logout } = useContext(UserContext);
-
-    useEffect(() => {
-        ListaDespesas();
-    }, []);
+    const { getItem, setItem, removeItem } = useAsyncStorage(
+        "@myexpenses:expenses"
+    );
+    const [loadingDespesas, setLoadingDespesas] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [items, setItems] = useState([]);
+    const [expense, setExpense] = useState("");
+    const [value, setValue] = useState("");
+    const [activeEditItem, setActiveEditItem] = useState({});
+    const [totalExpense, setTotalExpense] = useState("");
+    let data = new Date();
+    let dia = String(data.getDate()).padStart(2, "0");
+    let mes = String(data.getMonth() + 1).padStart(2, "0");
+    let ano = data.getFullYear();
+    let dataAtual = dia + "/" + mes + "/" + ano;
 
     function numberToReal(numero: any) {
         var numero = numero.toFixed(2).split(".");
@@ -78,7 +90,7 @@ export default function Home({ navigation }: any) {
     const validar = () => {
         let error = false;
 
-        if (item == "" || value == "") {
+        if (expense == "" || value == "") {
             alert("Preencha os campos corretamente.");
             error = true;
         }
@@ -86,7 +98,154 @@ export default function Home({ navigation }: any) {
         return !error;
     };
 
-    if (loadingDespesas == true) {
+    async function handleFetchData() {
+        const response = await getItem();
+        const data = response ? JSON.parse(response) : [];
+        setItems(data);
+
+        let arrayExpenses = data.map((item) => Math.round(item.value));
+        let totalExpenses = arrayExpenses.reduce(function (soma, i) {
+            return soma + i;
+        });
+        setTotalExpense(totalExpenses);
+    }
+
+    async function handleOpenEdit(id: string) {
+        const response = await getItem();
+        const previousData = response ? JSON.parse(response) : [];
+        previousData.filter((item) => {
+            if (item._id === id) {
+                setExpense(item.item);
+                setValue(item.value);
+            }
+        });
+    }
+
+    async function handleEdit(item: any) {
+        const response = await getItem();
+        const data = JSON.parse(response);
+        const editItem = [...data].map((i: any) => {
+            if (i._id === item._id) {
+                return {
+                    ...i,
+                    item: expense,
+                    date: dataAtual,
+                    value: value,
+                };
+            } else {
+                return i;
+            }
+        });
+        await setItem(JSON.stringify(editItem));
+        handleFetchData();
+        setExpense("");
+        setValue("");
+        Toast.show({
+            type: "success",
+            text1: "Editado com sucesso!",
+        });
+        setEditar(false);
+        setModalVisible(!modalVisible);
+    }
+
+    async function handleRemoveAll() {
+        Alert.alert("Deseja limpar toda sua lista?", "", [
+            {
+                text: "Sim",
+                onPress: async () => {
+                    await removeItem();
+                    setItems([]);
+                    setTotalExpense("")
+                },
+                style: "cancel",
+            },
+            {
+                text: "Não",
+                onPress: () => {
+                    return;
+                },
+            },
+        ]);
+    }
+
+    // async function fetchDataId(id: string) {
+    //     const response = await getItem();
+    //     const previousData = response ? JSON.parse(response) : [];
+    //     const data = previousData.filter((item) => {
+    //         if (item._id === id) {
+    //             // condição
+    //         }
+    //     });
+    // }
+
+    // useCallback(() => {
+    //     fetchDataId()
+    // }, [editar])
+
+    async function handleNew() {
+        try {
+            const id = uuid.v4();
+
+            const newData = {
+                _id: id,
+                item: expense,
+                date: dataAtual,
+                value: value,
+            };
+
+            const response = await getItem();
+            const previousData = response ? JSON.parse(response) : [];
+
+            const data = [...previousData, newData];
+
+            await setItem(JSON.stringify(data));
+            setModalVisible(!modalVisible);
+            handleFetchData();
+            setExpense("");
+            setValue("");
+            Toast.show({
+                type: "success",
+                text1: "Cadastrado com sucesso!",
+            });
+        } catch (error) {
+            console.log(error);
+
+            Toast.show({
+                type: "error",
+                text1: "Não foi possível cadastrar.",
+            });
+        }
+    }
+
+    async function handleRemove(id: string) {
+        Alert.alert("Deseja remover esse item da sua lista?", "", [
+            {
+                text: "Sim",
+                onPress: async () => {
+                    const response = await getItem();
+                    const previousData = response ? JSON.parse(response) : [];
+
+                    const data = previousData.filter((item) => item._id !== id);
+                    setItem(JSON.stringify(data));
+                    setItems(data);
+                },
+                style: "cancel",
+            },
+            {
+                text: "Não",
+                onPress: () => {
+                    return;
+                },
+            },
+        ]);
+    }
+
+    useEffect(() => {
+        //removeItem()
+        handleFetchData();
+    }, []);
+
+    if (loadingDespesas) {
         return (
             <ContainerLoading>
                 <ActivityIndicator color={Colors.PRIMARY} size="large" />
@@ -95,10 +254,15 @@ export default function Home({ navigation }: any) {
     }
 
     return (
-        <Container style={modalVisible ? { opacity: 0.5 } : { opacity: 1 }}>
+        <Container>
             <TitlePage>Seja bem-vindo(a)!</TitlePage>
-            <SubTitlePage>Veja aqui suas despesas:</SubTitlePage>
-            {despesas.length == 0 ? (
+            {totalExpense && (
+                <SubTitlePage>
+                    Valor total das despesas:{" "}
+                    {numberToReal(parseInt(totalExpense))}
+                </SubTitlePage>
+            )}
+            {items.length == 0 ? (
                 <ContainerVazio>
                     <Icon
                         name={"format-list-bulleted"}
@@ -118,6 +282,8 @@ export default function Home({ navigation }: any) {
                 <>
                     <BtnAdicionar
                         onPress={() => {
+                            setExpense("");
+                            setValue("");
                             setModalVisible(true);
                         }}
                     >
@@ -128,24 +294,20 @@ export default function Home({ navigation }: any) {
                         />
                     </BtnAdicionar>
                     <FlatList
-                        style={{ marginTop: 20, marginBottom: 45 }}
-                        data={despesas}
+                        style={{ marginTop: 20, marginBottom: 15 }}
+                        data={items}
                         renderItem={({ item }: any) => (
                             <ContainerItem
-                                onPress={() => {
-                                    BuscaDespesa(item._id);
-                                    setModalDetalhes(true);
-                                }}
+                            // onPress={() => {
+                            //     BuscaDespesa(item._id);
+                            //     setModalDetalhes(true);
+                            // }}
                             >
                                 <Row>
                                     <ContainerLeft>
                                         <Despesa>{item.item}</Despesa>
                                         <ContainerIndividual>
-                                            <Data>
-                                                {moment(item.date).format(
-                                                    "DD/MM/YYYY"
-                                                )}
-                                            </Data>
+                                            <Data>{item.date}</Data>
                                         </ContainerIndividual>
                                         <ContainerIndividual>
                                             <Valor>
@@ -158,9 +320,11 @@ export default function Home({ navigation }: any) {
                                     <ContainerRight>
                                         <TouchableOpacity
                                             onPress={() => {
-                                                setIdItem(item._id);
+                                                setItem(item);
                                                 setEditar(true);
                                                 setModalVisible(true);
+                                                handleOpenEdit(item._id);
+                                                setActiveEditItem(item);
                                             }}
                                             style={{ marginBottom: 20 }}
                                         >
@@ -172,13 +336,13 @@ export default function Home({ navigation }: any) {
                                         </TouchableOpacity>
                                         <TouchableOpacity
                                             onPress={() =>
-                                                DeletaDespesas(item._id)
+                                                handleRemove(item._id)
                                             }
                                         >
                                             <Icon
                                                 name={"delete-forever-outline"}
                                                 size={30}
-                                                color={Colors.DELETAR}
+                                                color={Colors.EDITAR}
                                             />
                                         </TouchableOpacity>
                                     </ContainerRight>
@@ -282,7 +446,9 @@ export default function Home({ navigation }: any) {
                         transparent={true}
                         visible={modalVisible}
                     >
-                        <CenteredView>
+                        <CenteredView
+                            style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+                        >
                             <ModalView>
                                 <ViewClose>
                                     <TouchableOpacity
@@ -291,16 +457,19 @@ export default function Home({ navigation }: any) {
                                             setEditar(false);
                                         }}
                                     >
-                                        <TxtCancelar>Cancelar</TxtCancelar>
+                                        <Icon
+                                            name={"close"}
+                                            size={30}
+                                            color={Colors.SECONDARY}
+                                        />
                                     </TouchableOpacity>
                                 </ViewClose>
                                 <Label>Despesa:</Label>
                                 <Input
                                     placeholder="Ex: Cartão de crédito"
-                                    value={item}
-                                    onChangeText={(text) => setItem(text)}
-                                    autoCapitalize={"none"}
-                                    placeholderTextColor={"#838282c8"}
+                                    value={expense}
+                                    onChangeText={setExpense}
+                                    placeholderTextColor={"#b5a8b9c6"}
                                 />
 
                                 <Label style={{ marginTop: 25 }}>Valor:</Label>
@@ -308,19 +477,19 @@ export default function Home({ navigation }: any) {
                                     placeholder="R$ 00,00"
                                     value={value}
                                     keyboardType={"number-pad"}
-                                    onChangeText={(text) => setValue(text)}
+                                    onChangeText={setValue}
                                     autoCapitalize={"none"}
-                                    placeholderTextColor={"#838282c8"}
+                                    placeholderTextColor={"#b5a8b9c6"}
                                 />
                                 {editar ? (
                                     <BtnDespesa
                                         style={{
-                                            backgroundColor: Colors.EDITAR,
+                                            backgroundColor: Colors.PRIMARY,
                                         }}
                                         onPress={() => {
                                             if (validar()) {
-                                                setEditar(false);
-                                                EditarDespesas(idItem);
+                                                handleEdit(activeEditItem);
+                                                //EditarDespesas(idItem);
                                             }
                                         }}
                                     >
@@ -330,7 +499,7 @@ export default function Home({ navigation }: any) {
                                     <BtnDespesa
                                         onPress={() => {
                                             if (validar()) {
-                                                CriarDespesas();
+                                                handleNew();
                                             }
                                         }}
                                     >
@@ -342,14 +511,11 @@ export default function Home({ navigation }: any) {
                     </Modal>
                 </CenteredView>
             )}
-            <BtnSair
-                onPress={() => {
-                    logout();
-                    navigation.navigate("Login");
-                }}
-            >
-                <Icon name="exit-run" size={38} color={Colors.WHITE} />
-            </BtnSair>
+            {items.length >= 2 && (
+                <ClearListButton onPress={() => handleRemoveAll()}>
+                    <ClearListButtonText>Limpar lista</ClearListButtonText>
+                </ClearListButton>
+            )}
         </Container>
     );
 }

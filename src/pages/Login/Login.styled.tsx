@@ -18,7 +18,7 @@ export const Input = styled.TextInput`
     width: 70%;
     height: 50px;
     padding: 10px;
-    border-radius: 15px;
+    border-radius: 8px;
     background-color: ${Colors.GREY};
     color: ${Colors.WHITE};
 `;
@@ -35,7 +35,7 @@ export const BtnAcessar = styled.TouchableOpacity`
     width: 70%;
     height: 50px;
     background-color: ${Colors.PRIMARY};
-    border-radius: 15px;
+    border-radius: 8px;
     justify-content: center;
     margin-top: 10px;
 `;
