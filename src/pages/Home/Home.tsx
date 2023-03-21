@@ -228,6 +228,7 @@ export default function Home({ navigation }: any) {
                     const data = previousData.filter((item) => item._id !== id);
                     setItem(JSON.stringify(data));
                     setItems(data);
+                    handleFetchData();
                 },
                 style: "cancel",
             },
@@ -256,7 +257,7 @@ export default function Home({ navigation }: any) {
     return (
         <Container>
             <TitlePage>Seja bem-vindo(a)!</TitlePage>
-            {totalExpense && (
+            {items.length >= 1 && (
                 <SubTitlePage>
                     Valor total das despesas:{" "}
                     {numberToReal(parseInt(totalExpense))}
