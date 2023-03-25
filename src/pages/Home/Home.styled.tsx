@@ -198,3 +198,13 @@ export const ClearListButtonText = styled.Text`
     font-size: 15px;
     font-weight: bold;
 `;
+
+export const ProfileButton = styled.TouchableOpacity`
+
+`;
+
+export const RevenueText = styled.Text`
+    color: ${Colors.WHITE};
+    font-size: 13px;
+    font-weight: bold;
+`;

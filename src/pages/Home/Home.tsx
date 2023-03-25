@@ -28,7 +28,10 @@ import {
     ClearListButton,
     ClearListButtonText,
     LengthExpenses,
+    ProfileButton,
+    RevenueText,
 } from "./Home.styled";
+import { TextInputMask } from "react-native-masked-text";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useAsyncStorage } from "@react-native-async-storage/async-storage";
@@ -41,6 +44,7 @@ import {
     Modal,
     ActivityIndicator,
     Alert,
+    Text,
 } from "react-native";
 import UserContext from "../../context/User";
 import Toast from "react-native-toast-message";
@@ -97,17 +101,36 @@ export default function Home({ navigation }: any) {
 
         return !error;
     };
-
+    function formatMoney(value) {
+        return (
+            "R$ " +
+            value
+                .toFixed(2)
+                .replace(".", ",")
+                .replace(/(\d)(?=(\d{3})+\,)/g, "$1.")
+        );
+    }
     async function handleFetchData() {
         const response = await getItem();
         const data = response ? JSON.parse(response) : [];
         setItems(data);
 
-        let arrayExpenses = data.map((item) => Math.round(item.value));
-        let totalExpenses = arrayExpenses.reduce(function (soma, i) {
-            return soma + i;
-        });
-        setTotalExpense(totalExpenses);
+        const valoresNumeros = [];
+        let arrayExpenses = data.map((item) => item.value);
+
+        for (const element of arrayExpenses) {
+            const valorSemCifrao = element.replace("R$", "");
+            const valorSemPonto = valorSemCifrao.replace(".", "");
+            const valorComPonto = valorSemPonto.replace(",", ".");
+            const valorNumerico = parseFloat(valorComPonto);
+            valoresNumeros.push(valorNumerico);
+        }
+
+        const soma = valoresNumeros.reduce((total, valor) => total + valor, 0);
+        const numeroFormatado = formatMoney(soma);
+
+        console.log(soma);
+        setTotalExpense(numeroFormatado);
     }
 
     async function handleOpenEdit(id: string) {
@@ -155,7 +178,7 @@ export default function Home({ navigation }: any) {
                 onPress: async () => {
                     await removeItem();
                     setItems([]);
-                    setTotalExpense("")
+                    setTotalExpense("");
                 },
                 style: "cancel",
             },
@@ -256,11 +279,18 @@ export default function Home({ navigation }: any) {
 
     return (
         <Container>
+            {/* <Row>
+                <ProfileButton onPress={() => navigation.navigate("MyData")}>
+                    <Icon name="account" size={30} color={Colors.GREY_LIGHT} />
+                </ProfileButton>
+                <RevenueText>
+                    Teste
+                </RevenueText>
+            </Row> */}
             <TitlePage>Seja bem-vindo(a)!</TitlePage>
             {items.length >= 1 && (
                 <SubTitlePage>
-                    Valor total das despesas:{" "}
-                    {numberToReal(parseInt(totalExpense))}
+                    Valor total das despesas: {totalExpense}
                 </SubTitlePage>
             )}
             {items.length == 0 ? (
@@ -311,11 +341,7 @@ export default function Home({ navigation }: any) {
                                             <Data>{item.date}</Data>
                                         </ContainerIndividual>
                                         <ContainerIndividual>
-                                            <Valor>
-                                                {numberToReal(
-                                                    parseInt(item.value)
-                                                )}
-                                            </Valor>
+                                            <Valor>{item.value}</Valor>
                                         </ContainerIndividual>
                                     </ContainerLeft>
                                     <ContainerRight>
@@ -474,11 +500,20 @@ export default function Home({ navigation }: any) {
                                 />
 
                                 <Label style={{ marginTop: 25 }}>Valor:</Label>
-                                <Input
+                                <TextInputMask
+                                    type={"money"}
+                                    style={{
+                                        width: "95%",
+                                        padding: 12,
+                                        borderRadius: 8,
+                                        backgroundColor: Colors.GREY,
+                                        color: Colors.WHITE,
+                                    }}
                                     placeholder="R$ 00,00"
                                     value={value}
-                                    keyboardType={"number-pad"}
-                                    onChangeText={setValue}
+                                    onChangeText={(value) => {
+                                        setValue(value);
+                                    }}
                                     autoCapitalize={"none"}
                                     placeholderTextColor={"#b5a8b9c6"}
                                 />

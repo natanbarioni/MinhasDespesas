@@ -1,6 +1,6 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import Routes from "./src/router/Routes";
+import Routes from "./src/routes/Routes";
 import { UserContextProvider } from "./src/context/User";
 import { StateContextProvider } from "./src/context/States";
 import { StatusBar } from "react-native";
