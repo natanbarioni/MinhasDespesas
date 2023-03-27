@@ -56,7 +56,7 @@ export const TxtAdicionar = styled.Text`
     font-size: 20px;
 `;
 
-export const ContainerItem = styled.View`
+export const ContainerItem = styled.TouchableOpacity`
     width: 100%;
     height: auto;
     background-color: ${Colors.PRIMARY};
@@ -80,7 +80,6 @@ export const Valor = styled.Text`
     font-size: 19px;
     font-weight: bold;
     color: ${Colors.WHITE};
-    text-transform: uppercase;
 `;
 
 export const ContainerIndividual = styled.View`
@@ -207,4 +206,21 @@ export const RevenueText = styled.Text`
     color: ${Colors.WHITE};
     font-size: 13px;
     font-weight: bold;
+`;
+
+export const ModalizeContainer = styled.View`
+    width: 100%;
+    padding: 16px;
+`;
+
+export const ModalizeText = styled.Text`
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+`;
+
+export const Divider = styled.TouchableOpacity`
+    width: 100%;
+    height: 1px;
+    background-color: #E5E5E5;
 `;

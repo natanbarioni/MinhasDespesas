@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import {
     BtnAdicionar,
     Container,
@@ -30,7 +36,11 @@ import {
     LengthExpenses,
     ProfileButton,
     RevenueText,
+    ModalizeContainer,
+    ModalizeText,
+    Divider,
 } from "./Home.styled";
+import ActionSheet from "react-native-action-sheet-modal";
 import { TextInputMask } from "react-native-masked-text";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -45,6 +55,7 @@ import {
     ActivityIndicator,
     Alert,
     Text,
+    View,
 } from "react-native";
 import UserContext from "../../context/User";
 import Toast from "react-native-toast-message";
@@ -79,11 +90,52 @@ export default function Home({ navigation }: any) {
     const [value, setValue] = useState("");
     const [activeEditItem, setActiveEditItem] = useState({});
     const [totalExpense, setTotalExpense] = useState("");
+    const [totalNotExpense, setTotalNotExpense] = useState("");
+    const [visible, setVisible] = useState(false);
+    const [itemSelected, setItemSelected] = useState({});
     let data = new Date();
     let dia = String(data.getDate()).padStart(2, "0");
     let mes = String(data.getMonth() + 1).padStart(2, "0");
     let ano = data.getFullYear();
     let dataAtual = dia + "/" + mes + "/" + ano;
+    const list = [
+        {
+            name: itemSelected.paid
+                ? "Definir como pendente"
+                : "Definir como paga",
+            value: "paga",
+        },
+        // {
+        //     name: "Ver detalhes",
+        //     value: "detalhes",
+        // },
+    ];
+
+    function onClose() {
+        setVisible(false);
+    }
+
+    function onChange(value: any) {
+        handlerItem(itemSelected, value);
+    }
+
+    const handlerItem = async (item: any, value: string) => {
+        const response = await getItem();
+        const data = JSON.parse(response);
+        const editItem = [...data].map((i: any) => {
+            if (i._id === item._id) {
+                return {
+                    ...i,
+                    paid: item.paid ? false : value === "paga" ? true : false,
+                };
+            } else {
+                return i;
+            }
+        });
+        await setItem(JSON.stringify(editItem));
+        handleFetchData();
+        onClose();
+    };
 
     function numberToReal(numero: any) {
         var numero = numero.toFixed(2).split(".");
@@ -131,6 +183,28 @@ export default function Home({ navigation }: any) {
 
         console.log(soma);
         setTotalExpense(numeroFormatado);
+
+        const valoresNumerosNãoPagos = [];
+        let arrayExpensesNãoPagos = data
+            .filter((item) => !item.paid)
+            .map((item) => item.value);
+
+        for (const element of arrayExpensesNãoPagos) {
+            const valorSemCifrao = element.replace("R$", "");
+            const valorSemPonto = valorSemCifrao.replace(".", "");
+            const valorComPonto = valorSemPonto.replace(",", ".");
+            const valorNumerico = parseFloat(valorComPonto);
+            valoresNumerosNãoPagos.push(valorNumerico);
+        }
+
+        const somaNãoPagos = valoresNumerosNãoPagos.reduce(
+            (total, valor) => total + valor,
+            0
+        );
+        const numeroFormatadoNãoPagos = formatMoney(somaNãoPagos);
+
+        console.log(soma);
+        setTotalNotExpense(numeroFormatadoNãoPagos);
     }
 
     async function handleOpenEdit(id: string) {
@@ -279,6 +353,23 @@ export default function Home({ navigation }: any) {
 
     return (
         <Container>
+            <ActionSheet
+                options={list}
+                isVisible={visible}
+                onClose={() => onClose()}
+                cancelText="Cancelar"
+                cancelTextStyle={{
+                    color: "#fc5959",
+                    fontSize: 20,
+                    fontWeight: "bold",
+                }}
+                optionsTextStyle={{ fontSize: 20, color: Colors.WHITE }}
+                optionsContainerStyle={{ backgroundColor: Colors.SECONDARY }}
+                cancelContainerStyle={{ backgroundColor: Colors.SECONDARY }}
+                modalProps={{ backdropOpacity: 0.9 }}
+                onChange={onChange}
+                //onChange={onChange}
+            />
             {/* <Row>
                 <ProfileButton onPress={() => navigation.navigate("MyData")}>
                     <Icon name="account" size={30} color={Colors.GREY_LIGHT} />
@@ -289,9 +380,14 @@ export default function Home({ navigation }: any) {
             </Row> */}
             <TitlePage>Seja bem-vindo(a)!</TitlePage>
             {items.length >= 1 && (
-                <SubTitlePage>
-                    Valor total das despesas: {totalExpense}
-                </SubTitlePage>
+                <>
+                    <SubTitlePage>
+                        Valor total das despesas: {totalExpense}
+                    </SubTitlePage>
+                    <SubTitlePage>
+                        Valor das despesas não pagas: {totalNotExpense}
+                    </SubTitlePage>
+                </>
             )}
             {items.length == 0 ? (
                 <ContainerVazio>
@@ -328,53 +424,91 @@ export default function Home({ navigation }: any) {
                         style={{ marginTop: 20, marginBottom: 15 }}
                         data={items}
                         renderItem={({ item }: any) => (
-                            <ContainerItem
-                            // onPress={() => {
-                            //     BuscaDespesa(item._id);
-                            //     setModalDetalhes(true);
-                            // }}
-                            >
-                                <Row>
-                                    <ContainerLeft>
-                                        <Despesa>{item.item}</Despesa>
-                                        <ContainerIndividual>
-                                            <Data>{item.date}</Data>
-                                        </ContainerIndividual>
-                                        <ContainerIndividual>
-                                            <Valor>{item.value}</Valor>
-                                        </ContainerIndividual>
-                                    </ContainerLeft>
-                                    <ContainerRight>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                setItem(item);
-                                                setEditar(true);
-                                                setModalVisible(true);
-                                                handleOpenEdit(item._id);
-                                                setActiveEditItem(item);
-                                            }}
-                                            style={{ marginBottom: 20 }}
-                                        >
-                                            <Icon
-                                                name={"square-edit-outline"}
-                                                size={30}
-                                                color={Colors.EDITAR}
-                                            />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            onPress={() =>
-                                                handleRemove(item._id)
-                                            }
-                                        >
-                                            <Icon
-                                                name={"delete-forever-outline"}
-                                                size={30}
-                                                color={Colors.EDITAR}
-                                            />
-                                        </TouchableOpacity>
-                                    </ContainerRight>
-                                </Row>
-                            </ContainerItem>
+                            <>
+                                {/* {item.paid && (
+                                    <View
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            position: "absolute",
+                                        }}
+                                    >
+                                        <Icon
+                                            name={"cash-check"}
+                                            size={45}
+                                            color={"#18b940"}
+                                        />
+                                    </View>
+                                )} */}
+                                <ContainerItem
+                                    onPress={() => {
+                                        // BuscaDespesa(item._id);
+                                        // setModalDetalhes(true);
+                                        setVisible(true);
+                                        setItemSelected(item);
+                                    }}
+                                    style={{
+                                        opacity: item.paid ? 0.4 : 1,
+                                    }}
+                                >
+                                    <Row>
+                                        <ContainerLeft>
+                                            <Despesa>{item.item}</Despesa>
+                                            <ContainerIndividual>
+                                                <Data>{item.date}</Data>
+                                            </ContainerIndividual>
+                                            <ContainerIndividual>
+                                                <Valor
+                                                    style={{
+                                                        color: item.paid
+                                                            ? "#18b940"
+                                                            : Colors.WHITE,
+                                                        textDecorationLine:
+                                                            item.paid
+                                                                ? "line-through"
+                                                                : "none",
+                                                    }}
+                                                >
+                                                    {item.value}
+                                                </Valor>
+                                            </ContainerIndividual>
+                                        </ContainerLeft>
+                                        <ContainerRight>
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    setItem(item);
+                                                    setEditar(true);
+                                                    setModalVisible(true);
+                                                    handleOpenEdit(item._id);
+                                                    setActiveEditItem(item);
+                                                }}
+                                                style={{ marginBottom: 20 }}
+                                            >
+                                                <Icon
+                                                    name={"square-edit-outline"}
+                                                    size={30}
+                                                    color={Colors.EDITAR}
+                                                />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={() =>
+                                                    handleRemove(item._id)
+                                                }
+                                            >
+                                                <Icon
+                                                    name={
+                                                        "delete-forever-outline"
+                                                    }
+                                                    size={30}
+                                                    color={Colors.EDITAR}
+                                                />
+                                            </TouchableOpacity>
+                                        </ContainerRight>
+                                    </Row>
+                                </ContainerItem>
+                            </>
                         )}
                         keyExtractor={(item: any) => item._id}
                         horizontal={false}
@@ -474,7 +608,7 @@ export default function Home({ navigation }: any) {
                         visible={modalVisible}
                     >
                         <CenteredView
-                            style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+                            style={{ backgroundColor: "rgba(0,0,0,0.9)" }}
                         >
                             <ModalView>
                                 <ViewClose>

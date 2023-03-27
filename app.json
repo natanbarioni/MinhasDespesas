@@ -2,7 +2,7 @@
   "expo": {
     "name": "Minhas Despesas",
     "slug": "MinhasDespesas",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
