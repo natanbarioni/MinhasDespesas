@@ -56,6 +56,7 @@ import {
     Alert,
     Text,
     View,
+    Image,
 } from "react-native";
 import UserContext from "../../context/User";
 import Toast from "react-native-toast-message";
@@ -378,16 +379,38 @@ export default function Home({ navigation }: any) {
                     Teste
                 </RevenueText>
             </Row> */}
-            <TitlePage>Seja bem-vindo(a)!</TitlePage>
+            <View
+                style={{
+                    width: "100%",
+                    alignItems: "center",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                }}
+            >
+                <Image
+                    source={require("../../assets/logo.png")}
+                    style={{ width: 90, height: 90 }}
+                />
+                <TouchableOpacity onPress={() => navigation.navigate("Reminder")}>
+                    <Icon
+                        name="calendar-clock"
+                        size={35}
+                        color={Colors.GREY_LIGHT}
+                    />
+                </TouchableOpacity>
+            </View>
+            {/* <TitlePage>Seja bem-vindo(a)!</TitlePage> */}
             {items.length >= 1 && (
-                <>
-                    <SubTitlePage>
-                        Valor total das despesas: {totalExpense}
+                <View style={{ width: "100%", alignItems: "flex-start" }}>
+                    <SubTitlePage style={{ fontWeight: "normal" }}>
+                        Valor total das despesas:
+                        <SubTitlePage> {totalExpense} </SubTitlePage>
                     </SubTitlePage>
-                    <SubTitlePage>
-                        Valor das despesas não pagas: {totalNotExpense}
+                    <SubTitlePage style={{ fontWeight: "normal" }}>
+                        Valor das despesas não pagas:
+                        <SubTitlePage> {totalNotExpense} </SubTitlePage>
                     </SubTitlePage>
-                </>
+                </View>
             )}
             {items.length == 0 ? (
                 <ContainerVazio>

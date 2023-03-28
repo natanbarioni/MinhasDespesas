@@ -17,7 +17,7 @@ export const TitlePage = styled.Text`
 
 export const SubTitlePage = styled.Text`
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     text-align: center;
     color: ${Colors.WHITE};
     font-weight: bold;
