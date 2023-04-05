@@ -24,7 +24,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#18122B"
       },
-      "package": "com.MinhasDespesas"
+      "package": "com.MinhasDespesas",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,6 +34,19 @@
       "eas": {
         "projectId": "2244374a-9ad2-44d6-a593-fab987c99534"
       }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/noti.png",
+          "color": "#18122B"
+        }
+      ]
+    ],
+    "notification": {
+      "icon": "./assets/noti.png",
+      "color": "#18122B"
     }
   }
 }

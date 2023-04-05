@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { View, Button, Text, TouchableOpacity } from "react-native";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
@@ -16,20 +17,123 @@ import {
     Title,
 } from "./styles";
 import { Colors } from "../../styles";
+import { Platform } from "react-native";
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+    }),
+});
 
 export function Reminder({ navigation }: any) {
     const [date, setDate] = useState(new Date());
+    const [dateAtual, setDataAtual] = useState(new Date());
     const [mode, setMode] = useState("date");
     const [show, setShow] = useState(false);
     const [dateValue, setDateValue] = useState("");
     const [timeValue, setTimeValue] = useState("");
+    const [expoPushToken, setExpoPushToken] = useState("");
+    const [notification, setNotification] = useState(false);
+    const notificationListener = useRef();
+    const responseListener = useRef();
 
-    const horaAtual = date.toLocaleTimeString("pt-BR", {
-        hour12: false,
-        minute: "2-digit",
-        hour: "2-digit",
-        second: "omit",
-    });
+    useEffect(() => {
+        registerForPushNotificationsAsync().then((token) =>
+            setExpoPushToken(token)
+        );
+
+        notificationListener.current =
+            Notifications.addNotificationReceivedListener((notification) => {
+                setNotification(notification);
+            });
+
+        responseListener.current =
+            Notifications.addNotificationResponseReceivedListener(
+                (response) => {
+                    console.log(response);
+                }
+            );
+
+        return () => {
+            Notifications.removeNotificationSubscription(
+                notificationListener.current
+            );
+            Notifications.removeNotificationSubscription(
+                responseListener.current
+            );
+        };
+    }, []);
+
+    // useEffect(() => {
+    //     setInterval(function () {
+    //         const dataAtual = new Date();
+    //         setDataAtual(dataAtual);
+    //     }, 60000);
+    // }, []);
+
+    console.log(
+        Math.floor(date.getTime() / 1000) -
+            Math.floor(dateAtual.getTime() / 1000)
+    );
+    // const agora = new Date();
+    // const amanha = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 0, 1, 44, 10);
+    // const diferencaEmMilissegundos = amanha.getTime() - agora.getTime();
+    // const diferencaEmSegundos = Math.round(diferencaEmMilissegundos / 1000);
+
+    async function schedulePushNotification() {
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: "Minhas Despesas",
+                body: "Lembre de pagar as suas contas!",
+                // data: { data: "goes here" },
+                vibrate: [10],
+                priority: Notifications.AndroidNotificationPriority.MAX,
+            },
+            trigger: {
+                seconds:
+                    Math.floor(date.getTime() / 1000) -
+                    Math.floor(dateAtual.getTime() / 1000),
+            },
+        });
+    }
+
+    //console.log(diferencaEmSegundos);
+
+    async function registerForPushNotificationsAsync() {
+        let token;
+
+        if (Platform.OS === "android") {
+            await Notifications.setNotificationChannelAsync("default", {
+                name: "default",
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: "#FF231F7C",
+            });
+        }
+
+        if (Device.isDevice) {
+            const { status: existingStatus } =
+                await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== "granted") {
+                const { status } =
+                    await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            if (finalStatus !== "granted") {
+                alert("Failed to get push token for push notification!");
+                return;
+            }
+            token = (await Notifications.getExpoPushTokenAsync()).data;
+            console.log(token);
+        } else {
+            alert("Must use physical device for Push Notifications");
+        }
+
+        return token;
+    }
 
     function horaAtualFormatada(date?: string) {
         var data = date || new Date();
@@ -52,6 +156,8 @@ export function Reminder({ navigation }: any) {
     }
 
     const onChange = (event, selectedDate) => {
+        const dataAtual = new Date();
+        setDataAtual(dataAtual);
         const currentDate = selectedDate;
         setShow(false);
         setDate(currentDate);
@@ -128,7 +234,11 @@ export function Reminder({ navigation }: any) {
                 />
             )}
 
-            <ButtonSave onPress={() => navigation.goBack()}>
+            <ButtonSave
+                onPress={async () => {
+                    await schedulePushNotification();
+                }}
+            >
                 <TextButtonSave>Salvar</TextButtonSave>
             </ButtonSave>
         </Container>

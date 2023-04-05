@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "129681529177",
+    "project_id": "minhas-despesas-4a280",
+    "storage_bucket": "minhas-despesas-4a280.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:129681529177:android:b523a0e889582122701448",
+        "android_client_info": {
+          "package_name": "com.MinhasDespesas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "129681529177-rort0orpau2iaqseko0ful8lm743pkd4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtxfc8n7USRybEnM7Onme-DlU3GTTR5ZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "129681529177-rort0orpau2iaqseko0ful8lm743pkd4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
