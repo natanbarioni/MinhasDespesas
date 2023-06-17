@@ -16,7 +16,9 @@ import { Colors } from "../../styles";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { ScrollView } from "react-native";
 import { TextInputMask } from "react-native-masked-text";
-import { useAsyncStorage } from "@react-native-async-storage/async-storage";
+import AsyncStorage, {
+    useAsyncStorage,
+} from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
 
 export function Plan({ navigation }) {
@@ -145,21 +147,24 @@ export function Plan({ navigation }) {
 
     useEffect(() => {
         fetchData();
+        //AsyncStorage.removeItem("@myexpenses:plan")
     }, []);
 
     useEffect(() => {
-        setLiquidPJ(data.liquidPJ);
-        setLiquidCLT(data.liquidCLT);
-        setBillsCLT(data.billsCLT);
-        setLivreCLT(data.livreCLT);
-        setInvestir50(data.investir50);
-        setInvestir05(data.investir05);
-        setInvestir20(data.investir20);
-        setLivreReal(data.livreReal);
-        setGastar05(data.gastar05);
-        setGastar20(data.gastar20);
-        setGastos05(data.gastos05);
-        setGastos20(data.gastos20);
+        if (data) {
+            setLiquidPJ(data.liquidPJ);
+            setLiquidCLT(data.liquidCLT);
+            setBillsCLT(data.billsCLT);
+            setLivreCLT(data.livreCLT);
+            setInvestir50(data.investir50);
+            setInvestir05(data.investir05);
+            setInvestir20(data.investir20);
+            setLivreReal(data.livreReal);
+            setGastar05(data.gastar05);
+            setGastar20(data.gastar20);
+            setGastos05(data.gastos05);
+            setGastos20(data.gastos20);
+        }
     }, [data]);
 
     console.log(data);
@@ -248,35 +253,35 @@ export function Plan({ navigation }) {
                 <HorizontalLine />
                 <SimpleRow>
                     <Title>Livre CLT: </Title>
-                    <Title style={{color: '#388cdb'}}>{livreCLT}</Title>
+                    <Title style={{ color: "#388cdb" }}>{livreCLT}</Title>
                 </SimpleRow>
 
                 <HorizontalLine />
 
                 <SimpleRow>
                     <Title>Investir 50% + Sobra Livre Real: </Title>
-                    <Title style={{color: '#35d673'}}>{investir50}</Title>
+                    <Title style={{ color: "#35d673" }}>{investir50}</Title>
                 </SimpleRow>
                 <SimpleRow>
                     <Title>Investir dia 05: </Title>
-                    <Title style={{color: '#35d673'}}>{investir05}</Title>
+                    <Title style={{ color: "#35d673" }}>{investir05}</Title>
                 </SimpleRow>
                 <SimpleRow>
                     <Title>Investir dia 20: </Title>
-                    <Title style={{color: '#35d673'}}>{investir20}</Title>
+                    <Title style={{ color: "#35d673" }}>{investir20}</Title>
                 </SimpleRow>
                 <HorizontalLine />
                 <SimpleRow>
                     <Title>Livre Real: </Title>
-                    <Title style={{color: '#ffa551'}}>{livreReal}</Title>
+                    <Title style={{ color: "#ffa551" }}>{livreReal}</Title>
                 </SimpleRow>
                 <SimpleRow>
                     <Title>Gastar dia 05 até dia 20: </Title>
-                    <Title style={{color: '#ffa551'}}>{gastar05}</Title>
+                    <Title style={{ color: "#ffa551" }}>{gastar05}</Title>
                 </SimpleRow>
                 <SimpleRow>
                     <Title>Gastar dia 20 até dia 05: </Title>
-                    <Title style={{color: '#ffa551'}}>{gastar20}</Title>
+                    <Title style={{ color: "#ffa551" }}>{gastar20}</Title>
                 </SimpleRow>
                 <HorizontalLine />
                 <SimpleRow>
