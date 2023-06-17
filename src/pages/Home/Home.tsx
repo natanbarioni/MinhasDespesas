@@ -391,9 +391,16 @@ export default function Home({ navigation }: any) {
                     source={require("../../assets/logo.png")}
                     style={{ width: 90, height: 90 }}
                 />
-                <TouchableOpacity onPress={() => navigation.navigate("Reminder")}>
+                {/* <TouchableOpacity onPress={() => navigation.navigate("Reminder")}>
                     <Icon
                         name="calendar-clock"
+                        size={35}
+                        color={Colors.GREY_LIGHT}
+                    />
+                </TouchableOpacity> */}
+                <TouchableOpacity onPress={() => navigation.navigate("Plan")}>
+                    <Icon
+                        name="file-document"
                         size={35}
                         color={Colors.GREY_LIGHT}
                     />
