@@ -391,13 +391,13 @@ export default function Home({ navigation }: any) {
                     source={require("../../assets/logo.png")}
                     style={{ width: 90, height: 90 }}
                 />
-                <TouchableOpacity onPress={() => navigation.navigate("Reminder")}>
+                {/* <TouchableOpacity onPress={() => navigation.navigate("Reminder")}>
                     <Icon
                         name="calendar-clock"
                         size={35}
                         color={Colors.GREY_LIGHT}
                     />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
             {/* <TitlePage>Seja bem-vindo(a)!</TitlePage> */}
             {items.length >= 1 && (
